@@ -12,6 +12,8 @@ class Play extends React.Component {
       pageNum: 1,
       highlightedRange: [],
       gameSnippets: [],
+      fullSnippets: [],
+      selections: [],
       submittedCurrent: false
     };
     this.getGame = this.getGame.bind(this);
@@ -54,7 +56,7 @@ class Play extends React.Component {
       .then(res => {
         if (res.data) {
           this.setState({
-            currSnippet: res.data[0]
+            currSnippet: res.data[0],
           });
         }
       })
@@ -89,7 +91,37 @@ class Play extends React.Component {
   }
 
   submitCurrent() {
-    this.setState({ submittedCurrent: true });
+    this.setState({ 
+        submittedCurrent: true,
+        fullSnippets: this.state.fullSnippets.concat(this.state.currSnippet),
+        selections: this.state.selections.concat(this.state.highlightedRange) 
+    }, () => {
+
+        if (this.state.pageNum === this.state.gameSnippets.length) {
+            for (const i in this.state.fullSnippets) {
+
+                const interpData = {
+                    user: this.props.userId,
+                    selection: this.state.selections[i]
+                }
+                const postData = {
+                    text: this.state.fullSnippets[i].text,
+                    id: this.state.fullSnippets[i].id,
+                    interps: this.state.fullSnippets[i].interps 
+                            ? this.state.fullSnippets[i].interps.concat(interpData)
+                            : [interpData]
+                }
+                axios
+                .patch(`/api/snippets/${this.state.fullSnippets[i].id}`, postData)
+                .then(res => {
+                  if (res.data) {
+                    console.log(res.data)
+                  }
+                })
+                .catch(err => console.log(err));
+            }
+        }
+    });
   }
 
   render() {

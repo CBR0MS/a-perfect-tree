@@ -36,7 +36,7 @@ router.post("/snippets", (req, res, next) => {
 });
 
 router.patch("/snippets/:id", (req, res, next) => {
-  if (req.body.action) {
+  if (req.body.id) {
     Snippet.findOneAndUpdate({ id: req.params.id }, req.body)
       .then(data => res.json(data))
       .catch(next);
