@@ -1,31 +1,93 @@
-const express = require ('express');
+const express = require("express");
 const router = express.Router();
-const Todo = require('../models/todo');
 
-router.get('/todos', (req, res, next) => {
+const Snippet = require("../models/snippet");
+const Game = require("../models/game");
 
-  //this will return all the data, exposing only the id and action field to the client
-  Todo.find({}, 'action')
-    .then(data => res.json(data))
-    .catch(next)
-});
-
-router.post('/todos', (req, res, next) => {
-  if(req.body.action){
-    Todo.create(req.body)
+// Snippet model
+router.get("/snippets/:id", (req, res, next) => {
+  if (req.params.id) {
+    Snippet.find({ id: req.params.id })
       .then(data => res.json(data))
-      .catch(next)
-  }else {
+      .catch(next);
+  } else {
     res.json({
-      error: "The input field is empty"
-    })
+      error: "Invalid snippet id"
+    });
   }
 });
 
-router.delete('/todos/:id', (req, res, next) => {
-  Todo.findOneAndDelete({"_id": req.params.id})
+router.get("/snippets", (req, res, next) => {
+  Snippet.find({})
     .then(data => res.json(data))
-    .catch(next)
-})
+    .catch(next);
+});
+
+router.post("/snippets", (req, res, next) => {
+  if (req.body.text) {
+    Snippet.create(req.body)
+      .then(data => res.json(data))
+      .catch(next);
+  } else {
+    res.json({
+      error: "The text field is empty"
+    });
+  }
+});
+
+router.patch("/snippets/:id", (req, res, next) => {
+  if (req.body.action) {
+    Snippet.findOneAndUpdate({ id: req.params.id }, req.body)
+      .then(data => res.json(data))
+      .catch(next);
+  } else {
+    res.json({
+      error: "The input field is empty"
+    });
+  }
+});
+
+router.delete("/snippets/:id", (req, res, next) => {
+  Snippet.findOneAndDelete({ id: req.params.id })
+    .then(data => res.json(data))
+    .catch(next);
+});
+
+// Game model
+router.get("/games/:id", (req, res, next) => {
+  if (req.params.id) {
+    Game.find({ id: req.params.id })
+      .then(data => res.json(data))
+      .catch(next);
+  } else {
+    res.json({
+      error: "Invalid game id"
+    });
+  }
+});
+
+router.get("/games", (req, res, next) => {
+  Game.find({})
+    .then(data => res.json(data))
+    .catch(next);
+});
+
+router.post("/games", (req, res, next) => {
+  if (req.body.name) {
+    Game.create(req.body)
+      .then(data => res.json(data))
+      .catch(next);
+  } else {
+    res.json({
+      error: "The name field is empty"
+    });
+  }
+});
+
+router.delete("/games/:id", (req, res, next) => {
+  Game.findOneAndDelete({ id: req.params.id })
+    .then(data => res.json(data))
+    .catch(next);
+});
 
 module.exports = router;
