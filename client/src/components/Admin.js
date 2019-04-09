@@ -123,7 +123,9 @@ class Admin extends React.Component {
     const gameJSX = games.map(item => {
       return (
         <div className="item">
-          <h4>{item.name}</h4>
+          <h4>Name</h4>
+          <p>{item.name}</p>
+          <h4>ID</h4>
           <p>{item.id}</p>
           <button onClick={() => this.deleteItem(item.id, "games")}>
             Delete
@@ -134,7 +136,9 @@ class Admin extends React.Component {
     const snippetJSX = snippets.map(item => {
       return (
         <div className="item">
-          <h4>{item.text}</h4>
+          <h4>Text</h4>
+          <p>{item.text}</p>
+          <h4>ID</h4>
           <p>{item.id}</p>
           <button onClick={() => this.deleteItem(item.id, "snippets")}>
             Delete
@@ -144,39 +148,46 @@ class Admin extends React.Component {
     });
 
     return (
-      <div>
-        <h2>Games</h2>
-        {gameJSX}
-        <h2>Snippets</h2>
-        {snippetJSX}
-        <h2>Add Game</h2>
-        <div>
-          <h4>Name</h4>
-          <input
-            type="text"
-            onChange={this.handleChange}
-            name="gameName"
-            value={this.state.gameName}
-          />
-          <h4>Snippets</h4>
-          <input
-            type="text"
-            onChange={this.handleChange}
-            name="gameSnippets"
-            value={this.state.gameSnippets}
-          />
-          <button onClick={this.addGame}>Add Game</button>
+      <div className="wrapper">
+        <h1>Games</h1>
+
+        <div className="wrapperFlex">
+          {gameJSX}
+
+          <div className="item">
+            <h2>Add Game</h2>
+            <h4>Name</h4>
+            <input
+              type="text"
+              onChange={this.handleChange}
+              name="gameName"
+              value={this.state.gameName}
+            />
+            <h4>Snippets</h4>
+            <input
+              type="text"
+              onChange={this.handleChange}
+              name="gameSnippets"
+              value={this.state.gameSnippets}
+            />
+            <button onClick={this.addGame}>Add Game</button>
+          </div>
         </div>
-        <h2>Add Snippet</h2>
-        <div>
-          <h4>Text</h4>
-          <input
-            type="text"
-            onChange={this.handleChange}
-            name="snippetText"
-            value={this.state.snippetText}
-          />
-          <button onClick={this.addSnippet}>Add Snippet</button>
+
+        <h1>Snippets</h1>
+        <div className="wrapperFlex">
+          {snippetJSX}
+          <div className="item">
+            <h2>Add Snippet</h2>
+            <h4>Text</h4>
+            <input
+              type="text"
+              onChange={this.handleChange}
+              name="snippetText"
+              value={this.state.snippetText}
+            />
+            <button onClick={this.addSnippet}>Add Snippet</button>
+          </div>
         </div>
       </div>
     );

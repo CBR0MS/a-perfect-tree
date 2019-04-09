@@ -1,19 +1,12 @@
-.App {
-  text-align: center;
-  font-size: calc(10px + 2vmin);
-  width: 60%;
-  margin-left: auto;
-  margin-right: auto;
-}
-
 input {
-  height: 40px;
-  width: 50%;
+  font-family: open-sans, sans-serif;
+  /*height: 40px;*/
+  width: 100%;
   border: none;
   border-bottom: 2px #101113 solid;
   background: none;
-  font-size: 1.5rem;
-  color: #787a80;
+  font-size: 14px;
+  color: black;
 }
 
 input:focus {
@@ -21,15 +14,36 @@ input:focus {
 }
 
 button {
-  width: 25%;
-  height: 45px;
+  font-family: open-sans, sans-serif;
+  transition: all 0.75s ease;
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
+  padding: 15px 20px;
   border: none;
-  margin-left: 10px;
+  margin: 10px 10px;
   font-size: 16px;
-  background: #101113;
-  border-radius: 5px;
+  background: #353535;
+  border-radius: 10px;
   color: white;
   cursor: pointer;
+}
+
+button.light {
+  color: #353535;
+  background: white;
+}
+
+button.disabled {
+  cursor: auto;
+  color: #bababa;
+  background: #727272;
+}
+
+button:hover, .item:hover {
+  box-shadow: 0 0 40px rgba(0,0,0,0.4);
+}
+
+button.disabled:hover {
+  box-shadow: 0 0 20px rgba(0,0,0,0.2);
 }
 
 button:focus {
@@ -37,54 +51,59 @@ button:focus {
 }
 
 .item {
+  transition: all 0.75s ease;
   padding: 20px;
-  background-color: tomato;
+   box-shadow: 0 0 20px rgba(0,0,0,0.2);
+ /* background-color: #f98c5e;*/
   color: black;
   margin: 10px;
-  border-radius: 5px;
+  width: 320px;
+  border-radius: 10px;
 }
 
 .snipArea {
+  font-family: minion-3, serif;
   max-width: 600px;
-  margin: 30px auto;
-  font-size: 20px;
+  margin: 100px auto;
+  padding: 20px;
+  font-size: 30px;
   text-align: left;
 }
 
 .playWrapper {
   max-width: 800px;
-  margin: 30px auto;
+  margin: 10vh auto;
   text-align: center;
 }
 
-@media only screen and (min-width: 300px) {
-  .App {
-    width: 80%;
-  }
-
-  input {
-    width: 100%
-  }
-
-  button {
-    width: 100%;
-    margin-top: 15px;
-    margin-left: 0;
-  }
+::selection {
+  background-color: #f98c5e;
+  color: black;
 }
 
-@media only screen and (min-width: 640px) {
-  .App {
-    width: 60%;
-  }
+.wrapperFlex {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  max-width: 1200px;
+  width: 98%;
+  margin: 0 auto;
+}
 
-  input {
-    width: 50%;
-  }
+.wrapper {
+  max-width: 1200px;
+  width: 98%;
+  margin: 10vh auto;
+}
 
-  button {
-    width: 30%;
-    margin-left: 10px;
-    margin-top: 0;
-  }
+.centered {
+  text-align: center;
+}
+
+h1, h2, h3, h4 {
+  text-transform: uppercase;
+}
+
+.padder {
+  margin: 50px 0px;
 }

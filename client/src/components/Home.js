@@ -43,17 +43,18 @@ class Home extends React.Component {
 
     const gameJSX = games.map(item => {
       return (
-        <div className="item">
-          <h4>{item.name}</h4>
-          <button onClick={() => this.playGame(item.id)}>Play</button>
+        <div className="item centered">
+          <h2>{item.name}</h2>
+          <p>{item.snippets.length} Snippets</p>
+          <button onClick={() => {}}>View Results</button>
+          <button onClick={() => this.playGame(item.id)}>Contribute →</button>
         </div>
       );
     });
 
     return (
-      <div>
-        <h1>Hi {this.props.userId}</h1>
-        {gameJSX}
+      <div className="wrapper">
+        <div className="wrapperFlex">{gameJSX}</div>
       </div>
     );
   }

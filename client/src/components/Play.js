@@ -25,6 +25,7 @@ class Play extends React.Component {
   }
 
   componentDidMount() {
+    console.log("User " + this.props.userId);
     const { id } = this.props.match.params;
     const parsed = queryString.parse(this.props.location.search);
 
@@ -56,7 +57,7 @@ class Play extends React.Component {
       .then(res => {
         if (res.data) {
           this.setState({
-            currSnippet: res.data[0],
+            currSnippet: res.data[0]
           });
         }
       })
@@ -91,37 +92,57 @@ class Play extends React.Component {
   }
 
   submitCurrent() {
-    this.setState({ 
+    // convert range to array of indecies with bool for selection
+    let highlightedChars = Array.apply(
+      null,
+      Array(this.state.currSnippet.text.length)
+    ).map(value => false);
+    for (const i in this.state.highlightedRange) {
+      const { start, end } = this.state.highlightedRange[i];
+      highlightedChars = highlightedChars.map((value, index) => {
+        if (index >= start && index <= end) {
+          return true;
+        }
+        return value;
+      });
+    }
+
+    this.setState(
+      {
         submittedCurrent: true,
         fullSnippets: this.state.fullSnippets.concat(this.state.currSnippet),
-        selections: this.state.selections.concat(this.state.highlightedRange) 
-    }, () => {
-
-        if (this.state.pageNum === this.state.gameSnippets.length) {
-            for (const i in this.state.fullSnippets) {
-
-                const interpData = {
-                    user: this.props.userId,
-                    selection: this.state.selections[i]
+        selections: this.state.selections.concat([highlightedChars])
+      },
+      () => {
+        if (
+          this.state.pageNum === this.state.gameSnippets.length &&
+          this.state.fullSnippets.length === this.state.selections.length
+        ) {
+          for (const i in this.state.fullSnippets) {
+            const interpData = {
+              user: this.props.userId,
+              selection: this.state.selections[i]
+            };
+            const postData = {
+              text: this.state.fullSnippets[i].text,
+              id: this.state.fullSnippets[i].id,
+              interps:
+                this.state.fullSnippets[i].interps.length > 0
+                  ? this.state.fullSnippets[i].interps.concat([interpData])
+                  : [interpData]
+            };
+            axios
+              .patch(`/api/snippets/${this.state.fullSnippets[i].id}`, postData)
+              .then(res => {
+                if (res.data) {
+                  console.log(res.data);
                 }
-                const postData = {
-                    text: this.state.fullSnippets[i].text,
-                    id: this.state.fullSnippets[i].id,
-                    interps: this.state.fullSnippets[i].interps 
-                            ? this.state.fullSnippets[i].interps.concat(interpData)
-                            : [interpData]
-                }
-                axios
-                .patch(`/api/snippets/${this.state.fullSnippets[i].id}`, postData)
-                .then(res => {
-                  if (res.data) {
-                    console.log(res.data)
-                  }
-                })
-                .catch(err => console.log(err));
-            }
+              })
+              .catch(err => console.log(err));
+          }
         }
-    });
+      }
+    );
   }
 
   render() {
@@ -130,42 +151,83 @@ class Play extends React.Component {
     }
 
     let snip = <div />;
+    let allSnip = <div />;
     if (this.state.currSnippet) {
       snip = (
-        <div className="snipArea">
-          <Highlightable
-            ranges={this.state.highlightedRange}
-            enabled={true}
-            onTextHighlighted={this.handleContentSelect}
-            id="snippet"
-            highlightStyle={{
-              backgroundColor: "#ffcc80"
-            }}
-            text={this.state.currSnippet.text}
-          />
-        </div>
+        <Highlightable
+          ranges={this.state.highlightedRange}
+          enabled={true}
+          onTextHighlighted={this.handleContentSelect}
+          id="snippet"
+          highlightStyle={{
+            backgroundColor: "#f98c5e"
+          }}
+          text={this.state.currSnippet.text}
+        />
       );
     }
 
+    if (this.state.submittedCurrent) {
+      const snippetChars = this.state.currSnippet.text.split("");
+      const interps = this.state.fullSnippets[
+        this.state.pageNum - 1
+      ].interps.concat({
+        selection: this.state.selections[this.state.pageNum - 1]
+      });
+      allSnip = snippetChars.map((value, index) => {
+        const characterHighlights = interps.map((v, i) => {
+          return v.selection[index];
+        });
+        const sum = characterHighlights.reduce((total, value) => {
+          if (value) {
+            return total + 1;
+          }
+          return total;
+        });
+        const percentHighlighted = sum / interps.length;
+        const computedHighlightColor = `rgba(249, 140, 94, ${percentHighlighted.toString()})`;
+        //className={this.state.selections[this.state.pageNum - 1][index] ? 'colored' : '' }
+        return (
+          <span style={{ backgroundColor: computedHighlightColor }}>
+            {value}
+          </span>
+        );
+      });
+    }
+
+    const gotInput = this.state.highlightedRange.length > 0;
     let buttons = (
       <div>
-        <button onClick={this.resetContentSelect}>Reset Selection</button>
-        <button onClick={this.submitCurrent}>Compare Selection</button>
+        <button onClick={this.resetContentSelect} className="light">
+          Reset Selection
+        </button>
+        <button
+          onClick={gotInput ? this.submitCurrent : () => {}}
+          className={gotInput ? "" : "disabled"}
+        >
+          Compare Selection →
+        </button>
       </div>
     );
     if (this.state.submittedCurrent) {
       buttons = (
         <button onClick={this.nextPage}>
           {this.state.pageNum === this.state.gameSnippets.length
-            ? "Finish"
-            : "Next Page"}
+            ? "Summary →"
+            : "Next Page →"}
         </button>
       );
     }
     console.log(this.state);
     return (
       <div className="playWrapper">
-        {snip}
+        <div>
+          {this.state.pageNum}/{this.state.gameSnippets.length}
+        </div>
+        <div className="snipArea">
+          <div className="padder">{snip}</div>
+          <div className="padder">{allSnip}</div>
+        </div>
         {buttons}
       </div>
     );
