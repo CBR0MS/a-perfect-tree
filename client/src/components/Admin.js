@@ -122,7 +122,7 @@ class Admin extends React.Component {
 
     const gameJSX = games.map(item => {
       return (
-        <div className="item">
+        <div className="item" key={uuidv4()}>
           <h4>Name</h4>
           <p>{item.name}</p>
           <h4>ID</h4>
@@ -135,7 +135,7 @@ class Admin extends React.Component {
     });
     const snippetJSX = snippets.map(item => {
       return (
-        <div className="item">
+        <div className="item" key={uuidv4()}>
           <h4>Text</h4>
           <p>{item.text}</p>
           <h4>ID</h4>

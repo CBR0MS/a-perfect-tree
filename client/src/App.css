@@ -64,16 +64,20 @@ button:focus {
 .snipArea {
   font-family: minion-3, serif;
   max-width: 600px;
-  margin: 100px auto;
+  margin: 20px auto;
   padding: 20px;
   font-size: 30px;
   text-align: left;
 }
 
 .playWrapper {
-  max-width: 800px;
+  max-width: 600px;
   margin: 10vh auto;
   text-align: center;
+}
+
+.playHeader {
+  padding: 10px 20px;
 }
 
 ::selection {

@@ -6,6 +6,9 @@ import Home from "./components/Home";
 import Play from "./components/Play";
 import Admin from "./components/Admin";
 
+import VisualizeSnippet from "./components/VisualizeSnippet"
+import VisualizeGame from './components/VisualizeGame'
+
 import "./App.css";
 
 const uuidv4 = require("uuid/v4");
@@ -31,6 +34,13 @@ const App = () => {
           path="/play/:id"
           render={props => <Play {...props} userId={cookies.userId} />}
         />
+        <Route
+          path="/results/game/:id"
+          render={props => <Play {...props} userId={cookies.userId} />}
+        />
+        <Route path="/snip-results/:id" component={VisualizeSnippet}/>
+        <Route path="/game-results/:id" component={VisualizeGame}/>
+
         <Route path="/admin" component={Admin} />
       </div>
     </Router>

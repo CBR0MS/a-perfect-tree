@@ -3,6 +3,8 @@ import axios from "axios";
 
 import { Redirect } from "react-router";
 
+const uuidv4 = require('uuid/v4')
+
 class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -43,7 +45,7 @@ class Home extends React.Component {
 
     const gameJSX = games.map(item => {
       return (
-        <div className="item centered">
+        <div className="item centered" key={uuidv4()}>
           <h2>{item.name}</h2>
           <p>{item.snippets.length} Snippets</p>
           <button onClick={() => {}}>View Results</button>

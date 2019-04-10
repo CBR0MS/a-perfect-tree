@@ -2,6 +2,9 @@ import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router";
 import Highlightable from "highlightable";
+import ReactTooltip from 'react-tooltip'
+
+import VisualizeSnippet from './VisualizeSnippet'
 
 const queryString = require("query-string");
 
@@ -66,7 +69,7 @@ class Play extends React.Component {
 
   nextPage() {
     if (this.state.pageNum + 1 > this.state.gameSnippets.length) {
-      this.setState({ redirect: "/" });
+      this.setState({ redirect: `/game-results/${this.state.gameId}` });
     } else {
       this.props.history.push({
         pathname: `/play/${this.state.gameId}/`,
@@ -166,33 +169,17 @@ class Play extends React.Component {
         />
       );
     }
-
+    
     if (this.state.submittedCurrent) {
-      const snippetChars = this.state.currSnippet.text.split("");
+        
+      // add the current interp to list of interps to visualize
       const interps = this.state.fullSnippets[
         this.state.pageNum - 1
       ].interps.concat({
         selection: this.state.selections[this.state.pageNum - 1]
       });
-      allSnip = snippetChars.map((value, index) => {
-        const characterHighlights = interps.map((v, i) => {
-          return v.selection[index];
-        });
-        const sum = characterHighlights.reduce((total, value) => {
-          if (value) {
-            return total + 1;
-          }
-          return total;
-        });
-        const percentHighlighted = sum / interps.length;
-        const computedHighlightColor = `rgba(249, 140, 94, ${percentHighlighted.toString()})`;
-        //className={this.state.selections[this.state.pageNum - 1][index] ? 'colored' : '' }
-        return (
-          <span style={{ backgroundColor: computedHighlightColor }}>
-            {value}
-          </span>
-        );
-      });
+
+      allSnip = <VisualizeSnippet snippetData={this.state.currSnippet} interpsData={interps}/>
     }
 
     const gotInput = this.state.highlightedRange.length > 0;
@@ -204,9 +191,11 @@ class Play extends React.Component {
         <button
           onClick={gotInput ? this.submitCurrent : () => {}}
           className={gotInput ? "" : "disabled"}
+          data-tip data-for="helpMakingSelection"
         >
           Compare Selection →
         </button>
+        <ReactTooltip id='helpMakingSelection' place="bottom" type="dark" effect="solid" getContent={() =>  gotInput ? null : 'Highlight some text to continue' } />
       </div>
     );
     if (this.state.submittedCurrent) {
@@ -221,8 +210,9 @@ class Play extends React.Component {
     console.log(this.state);
     return (
       <div className="playWrapper">
-        <div>
-          {this.state.pageNum}/{this.state.gameSnippets.length}
+        <div className="playHeader">
+          <span style={{float: 'left'}}>{this.state.gameName}</span>
+          <span style={{float: 'right'}}>{this.state.pageNum}/{this.state.gameSnippets.length}</span>
         </div>
         <div className="snipArea">
           <div className="padder">{snip}</div>
