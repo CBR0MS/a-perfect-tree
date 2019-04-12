@@ -1,8 +1,8 @@
 import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router";
-import Highlightable from "highlightable";
 import ReactTooltip from 'react-tooltip'
+import SelectionHighlighter from 'react-highlight-selection'
 
 import VisualizeSnippet from './VisualizeSnippet'
 
@@ -17,6 +17,7 @@ class Play extends React.Component {
       gameSnippets: [],
       fullSnippets: [],
       selections: [],
+      loadingNew: true,
       submittedCurrent: false
     };
     this.getGame = this.getGame.bind(this);
@@ -60,7 +61,8 @@ class Play extends React.Component {
       .then(res => {
         if (res.data) {
           this.setState({
-            currSnippet: res.data[0]
+            currSnippet: res.data[0],
+            loadingNew: false,
           });
         }
       })
@@ -85,21 +87,35 @@ class Play extends React.Component {
   }
 
   handleContentSelect(range) {
+    const newRange = {
+        text: range.selection,
+        start: range.selectionStart,
+        end: range.selectionEnd,
+    }
+    // since we are allowing just one selection at a time, add the new range by itself. Rather than this.state.highlightedRange.concat(newRange)
     this.setState({
-      highlightedRange: this.state.highlightedRange.concat(range)
+      highlightedRange: [newRange]
     });
   }
 
   resetContentSelect() {
-    this.setState({ highlightedRange: [] });
+    this.setState({ loadingNew: true, highlightedRange: [] }, ()=> {
+        // have to reset the highlight by rerendering the highlight component
+        window.setTimeout(() => {
+            this.setState({loadingNew: false})
+        }, 100)
+        
+    });
   }
 
   submitCurrent() {
-    // convert range to array of indecies with bool for selection
+    // convert range to array of indicies with bool for selection
     let highlightedChars = Array.apply(
       null,
       Array(this.state.currSnippet.text.length)
     ).map(value => false);
+
+    // leaving this as an array for easy conversion to multiple line selection later
     for (const i in this.state.highlightedRange) {
       const { start, end } = this.state.highlightedRange[i];
       highlightedChars = highlightedChars.map((value, index) => {
@@ -152,21 +168,16 @@ class Play extends React.Component {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
-
+    
     let snip = <div />;
     let allSnip = <div />;
-    if (this.state.currSnippet) {
-      snip = (
-        <Highlightable
-          ranges={this.state.highlightedRange}
-          enabled={true}
-          onTextHighlighted={this.handleContentSelect}
-          id="snippet"
-          highlightStyle={{
-            backgroundColor: "#f98c5e"
-          }}
-          text={this.state.currSnippet.text}
-        />
+    if (this.state.currSnippet && !this.state.loadingNew) {
+      snip = ( 
+        <SelectionHighlighter
+        text={this.state.currSnippet.text}
+        selectionHandler={this.handleContentSelect}
+        customClass='highlighted'
+      />
       );
     }
     
@@ -195,7 +206,7 @@ class Play extends React.Component {
         >
           Compare Selection →
         </button>
-        <ReactTooltip id='helpMakingSelection' place="bottom" type="dark" effect="solid" getContent={() =>  gotInput ? null : 'Highlight some text to continue' } />
+        <ReactTooltip id='helpMakingSelection' place="top" type="dark" effect="solid" className='helpTooltip' getContent={() =>  gotInput ? null : 'Highlight the meaningful portion of the text to continue' } />
       </div>
     );
     if (this.state.submittedCurrent) {

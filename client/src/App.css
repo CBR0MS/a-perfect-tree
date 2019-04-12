@@ -85,6 +85,14 @@ button:focus {
   color: black;
 }
 
+.highlighted {
+  background-color: #f98c5e;
+}
+
+.helpTooltip {
+  max-width: 200px !important;
+}
+
 .wrapperFlex {
   display: flex;
   flex-flow: row wrap;
