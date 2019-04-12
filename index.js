@@ -11,7 +11,7 @@ const port = process.env.PORT || 5000;
 
 //connect to the database
 mongoose
-  .connect(process.env.DB, { useNewUrlParser: true })
+  .connect(process.env.ADMIN_DB, { useNewUrlParser: true })
   .then(() => console.log(`Database connected successfully`))
   .catch(err => console.log(err));
 
@@ -31,12 +31,11 @@ app.use(bodyParser.json());
 
 app.use("/api", routes);
 
-// serve the static files for react 
-app.use(express.static('client/build'))
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
-})
-
+// serve the static files for react
+app.use(express.static("client/build"));
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
 
 app.use((err, req, res, next) => {
   console.log(err);

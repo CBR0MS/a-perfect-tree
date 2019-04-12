@@ -1,12 +1,10 @@
 import React from "react";
 import axios from "axios";
 import { Redirect } from "react-router";
-import ReactTooltip from 'react-tooltip'
-import SelectionHighlighter from 'react-highlight-selection'
+import ReactTooltip from "react-tooltip";
+import SelectionHighlighter from "react-highlight-selection";
 
-import VisualizeSnippet from './VisualizeSnippet'
-
-const queryString = require("query-string");
+import VisualizeSnippet from "./VisualizeSnippet";
 
 class Play extends React.Component {
   constructor(props) {
@@ -18,7 +16,8 @@ class Play extends React.Component {
       fullSnippets: [],
       selections: [],
       loadingNew: true,
-      submittedCurrent: false
+      submittedCurrent: false,
+      mobileInput: ""
     };
     this.getGame = this.getGame.bind(this);
     this.getSnippet = this.getSnippet.bind(this);
@@ -26,18 +25,21 @@ class Play extends React.Component {
     this.handleContentSelect = this.handleContentSelect.bind(this);
     this.resetContentSelect = this.resetContentSelect.bind(this);
     this.submitCurrent = this.submitCurrent.bind(this);
+    this.handleMobileInput = this.handleMobileInput.bind(this);
   }
 
   componentDidMount() {
-    console.log("User " + this.props.userId);
     const { id } = this.props.match.params;
-    const parsed = queryString.parse(this.props.location.search);
+    console.log("User " + this.props.userId);
 
-    this.setState({
-      pageNum: parseInt(parsed.page),
-      gameId: id
-    });
-    this.getGame(id);
+    if (this.props.newUser === "true" || this.props.newUser === undefined) {
+      this.setState({ redirect: `/instructions/?redirect=${id}` });
+    } else {
+      this.setState({
+        gameId: id
+      });
+      this.getGame(id);
+    }
   }
 
   getGame(id) {
@@ -62,7 +64,7 @@ class Play extends React.Component {
         if (res.data) {
           this.setState({
             currSnippet: res.data[0],
-            loadingNew: false,
+            loadingNew: false
           });
         }
       })
@@ -71,12 +73,14 @@ class Play extends React.Component {
 
   nextPage() {
     if (this.state.pageNum + 1 > this.state.gameSnippets.length) {
-      this.setState({ redirect: `/game-results/${this.state.gameId}` });
-    } else {
-      this.props.history.push({
-        pathname: `/play/${this.state.gameId}/`,
-        search: `?page=${this.state.pageNum + 1}`
+      this.setState({
+        redirect: `/game-results/${this.state.gameId}/?next=true`
       });
+    } else {
+      // this.props.history.push({
+      //   pathname: `/play/${this.state.gameId}/`,
+      //   search: `?page=${this.state.pageNum + 1}`
+      // });
       this.setState({
         pageNum: this.state.pageNum + 1,
         submittedCurrent: false
@@ -88,24 +92,46 @@ class Play extends React.Component {
 
   handleContentSelect(range) {
     const newRange = {
-        text: range.selection,
-        start: range.selectionStart,
-        end: range.selectionEnd,
-    }
-    // since we are allowing just one selection at a time, add the new range by itself. Rather than this.state.highlightedRange.concat(newRange)
+      text: range.selection,
+      start: range.selectionStart,
+      end: range.selectionEnd
+    };
+    // since we are allowing just one selection at a time, add the new range by
+    // itself. Rather than this.state.highlightedRange.concat(newRange)
     this.setState({
       highlightedRange: [newRange]
     });
   }
 
   resetContentSelect() {
-    this.setState({ loadingNew: true, highlightedRange: [] }, ()=> {
-        // have to reset the highlight by rerendering the highlight component
-        window.setTimeout(() => {
-            this.setState({loadingNew: false})
-        }, 100)
-        
+    this.setState({ loadingNew: true, highlightedRange: [] }, () => {
+      // have to reset the highlight by rerendering the highlight component
+      window.setTimeout(() => {
+        this.setState({ loadingNew: false });
+      }, 100);
     });
+  }
+
+  handleMobileInput(event) {
+    const target = event.target;
+    const input = target.value;
+    const first = this.state.currSnippet.text.indexOf(input);
+    const last = this.state.currSnippet.text.indexOf(input) + input.length - 1;
+    if (
+      first >= 0 &&
+      first < this.state.currSnippet.text.length &&
+      last >= 0 &&
+      last < this.state.currSnippet.text.length &&
+      last > first
+    ) {
+      const newRange = {
+        text: input,
+        start: first,
+        end: last
+      };
+      this.setState({ highlightedRange: [newRange] });
+    }
+    this.setState({ mobileInput: input });
   }
 
   submitCurrent() {
@@ -130,7 +156,8 @@ class Play extends React.Component {
       {
         submittedCurrent: true,
         fullSnippets: this.state.fullSnippets.concat(this.state.currSnippet),
-        selections: this.state.selections.concat([highlightedChars])
+        selections: this.state.selections.concat([highlightedChars]),
+        mobileInput: ""
       },
       () => {
         if (
@@ -154,7 +181,7 @@ class Play extends React.Component {
               .patch(`/api/snippets/${this.state.fullSnippets[i].id}`, postData)
               .then(res => {
                 if (res.data) {
-                  console.log(res.data);
+                  //console.log(res.data);
                 }
               })
               .catch(err => console.log(err));
@@ -168,21 +195,34 @@ class Play extends React.Component {
     if (this.state.redirect) {
       return <Redirect to={this.state.redirect} />;
     }
-    
+
+    let paste = <div />;
     let snip = <div />;
     let allSnip = <div />;
     if (this.state.currSnippet && !this.state.loadingNew) {
-      snip = ( 
+      snip = (
         <SelectionHighlighter
-        text={this.state.currSnippet.text}
-        selectionHandler={this.handleContentSelect}
-        customClass='highlighted'
-      />
+          text={this.state.currSnippet.text}
+          selectionHandler={this.handleContentSelect}
+          customClass="highlighted"
+        />
       );
     }
-    
+
+    if (this.props.isTouch && !this.state.submittedCurrent)
+      paste = (
+        <div>
+          <p style={{ float: "left", paddingLeft: 20 }}>Paste your selection</p>
+          <input
+            type="text"
+            onChange={this.handleMobileInput}
+            name="mobileInput"
+            value={this.state.mobileInput}
+          />
+        </div>
+      );
+
     if (this.state.submittedCurrent) {
-        
       // add the current interp to list of interps to visualize
       const interps = this.state.fullSnippets[
         this.state.pageNum - 1
@@ -190,7 +230,13 @@ class Play extends React.Component {
         selection: this.state.selections[this.state.pageNum - 1]
       });
 
-      allSnip = <VisualizeSnippet snippetData={this.state.currSnippet} interpsData={interps}/>
+      allSnip = (
+        <VisualizeSnippet
+          snippetData={this.state.currSnippet}
+          interpsData={interps}
+          method="highlight"
+        />
+      );
     }
 
     const gotInput = this.state.highlightedRange.length > 0;
@@ -202,11 +248,24 @@ class Play extends React.Component {
         <button
           onClick={gotInput ? this.submitCurrent : () => {}}
           className={gotInput ? "" : "disabled"}
-          data-tip data-for="helpMakingSelection"
+          data-tip
+          data-for="helpMakingSelection"
         >
           Compare Selection →
         </button>
-        <ReactTooltip id='helpMakingSelection' place="top" type="dark" effect="solid" className='helpTooltip' getContent={() =>  gotInput ? null : 'Highlight the meaningful portion of the text to continue' } />
+        <ReactTooltip
+          id="helpMakingSelection"
+          place="top"
+          type="dark"
+          effect="solid"
+          clickable={true}
+          className="helpTooltip"
+          getContent={() =>
+            gotInput
+              ? null
+              : "Highlight the meaningful portion of the text to continue"
+          }
+        />
       </div>
     );
     if (this.state.submittedCurrent) {
@@ -218,17 +277,44 @@ class Play extends React.Component {
         </button>
       );
     }
-    console.log(this.state);
+    //  console.log(this.state);
     return (
       <div className="playWrapper">
         <div className="playHeader">
-          <span style={{float: 'left'}}>{this.state.gameName}</span>
-          <span style={{float: 'right'}}>{this.state.pageNum}/{this.state.gameSnippets.length}</span>
+          <span style={{ float: "left" }}>{this.state.gameName}</span>
+          <span style={{ float: "right" }}>
+            {this.state.pageNum}/{this.state.gameSnippets.length}
+          </span>
         </div>
         <div className="snipArea">
-          <div className="padder">{snip}</div>
-          <div className="padder">{allSnip}</div>
+          <div className="padder" data-tip data-for="yourSelection">
+            {snip}
+          </div>
+          <ReactTooltip
+            id="yourSelection"
+            place="left"
+            type="dark"
+            effect="solid"
+            className="helpTooltip"
+            getContent={() =>
+              !this.state.submittedCurrent ? null : "Your interpretation"
+            }
+          />
+          <div className="padder" data-tip data-for="allSelection">
+            {allSnip}
+          </div>
+          <ReactTooltip
+            id="allSelection"
+            place="left"
+            type="dark"
+            effect="solid"
+            className="helpTooltip"
+            getContent={() =>
+              !this.state.submittedCurrent ? null : "Everyone's interpretation"
+            }
+          />
         </div>
+        {paste}
         {buttons}
       </div>
     );

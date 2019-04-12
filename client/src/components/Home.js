@@ -3,7 +3,7 @@ import axios from "axios";
 
 import { Redirect } from "react-router";
 
-const uuidv4 = require('uuid/v4')
+const uuidv4 = require("uuid/v4");
 
 class Home extends React.Component {
   constructor(props) {
@@ -33,7 +33,7 @@ class Home extends React.Component {
   }
 
   playGame(id) {
-    this.setState({ redirect: `/play/${id}/?page=1` });
+    this.setState({ redirect: `/play/${id}/` });
   }
 
   render() {
@@ -48,7 +48,13 @@ class Home extends React.Component {
         <div className="item centered" key={uuidv4()}>
           <h2>{item.name}</h2>
           <p>{item.snippets.length} Snippets</p>
-          <button onClick={() => {}}>View Results</button>
+          <button
+            onClick={() => {
+              this.setState({ redirect: `/game-results/${item.id}` });
+            }}
+          >
+            View Results
+          </button>
           <button onClick={() => this.playGame(item.id)}>Contribute →</button>
         </div>
       );

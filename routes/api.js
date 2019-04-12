@@ -84,6 +84,18 @@ router.post("/games", (req, res, next) => {
   }
 });
 
+router.patch("/games/:id", (req, res, next) => {
+  if (req.body.id) {
+    Game.findOneAndUpdate({ id: req.params.id }, req.body)
+      .then(data => res.json(data))
+      .catch(next);
+  } else {
+    res.json({
+      error: "The input field is empty"
+    });
+  }
+});
+
 router.delete("/games/:id", (req, res, next) => {
   Game.findOneAndDelete({ id: req.params.id })
     .then(data => res.json(data))

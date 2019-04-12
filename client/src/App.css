@@ -1,12 +1,19 @@
 input {
   font-family: open-sans, sans-serif;
-  /*height: 40px;*/
-  width: 100%;
+/*  height: 40px;*/
+  padding: 10px;
+  width: calc(100% - 60px);
+  margin: 0px 20px;
+  margin-bottom: 40px;
+  background-color: #dbdbdb;
+  border-radius: 5px;
   border: none;
-  border-bottom: 2px #101113 solid;
-  background: none;
   font-size: 14px;
   color: black;
+}
+
+.sans {
+  font-family: open-sans, sans-serif;
 }
 
 input:focus {
@@ -64,7 +71,7 @@ button:focus {
 .snipArea {
   font-family: minion-3, serif;
   max-width: 600px;
-  margin: 20px auto;
+  margin: 0px auto;
   padding: 20px;
   font-size: 30px;
   text-align: left;
@@ -72,8 +79,18 @@ button:focus {
 
 .playWrapper {
   max-width: 600px;
-  margin: 10vh auto;
+  margin: 15vh auto;
   text-align: center;
+}
+
+@media (max-width: 400px) {
+  .playWrapper {
+    margin: 5vh auto;
+  }
+}
+
+.playWrapper.padded {
+  padding: 20px;
 }
 
 .playHeader {
@@ -91,6 +108,7 @@ button:focus {
 
 .helpTooltip {
   max-width: 200px !important;
+  font-family: open-sans, sans-serif;
 }
 
 .wrapperFlex {
@@ -118,4 +136,16 @@ h1, h2, h3, h4 {
 
 .padder {
   margin: 50px 0px;
+  text-align: left;
+}
+
+.helpButton {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  color: white;
+  background-color: #353535;
+  border-radius: 50%;
+  content: '?';
+  padding: 4px 12px; 
 }
