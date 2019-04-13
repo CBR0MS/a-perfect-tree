@@ -96,6 +96,8 @@ class VisualizeGame extends React.Component {
           </button>
         </div>
       );
+    } else {
+        next = (<div className="backButton" onClick={() => this.setState({redirect: '/'})}>←</div>)
     }
 
     return (
