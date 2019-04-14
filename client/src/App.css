@@ -77,6 +77,20 @@ button:focus {
   text-align: left;
 }
 
+.vizArea {
+  font-family: minion-3, serif;
+  margin: 0px auto;
+  padding: 20px;
+  text-align: left;
+}
+
+
+.vizWrapper {
+  max-width: 1200px;
+  margin: 15vh auto;
+  text-align: center;
+}
+
 .playWrapper {
   max-width: 600px;
   margin: 15vh auto;
@@ -84,7 +98,7 @@ button:focus {
 }
 
 @media (max-width: 400px) {
-  .playWrapper {
+  .playWrapper, .vizWrapper {
     margin: 5vh auto;
   }
 }

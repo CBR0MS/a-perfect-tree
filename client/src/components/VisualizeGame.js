@@ -97,16 +97,23 @@ class VisualizeGame extends React.Component {
         </div>
       );
     } else {
-        next = (<div className="backButton" onClick={() => this.setState({redirect: '/'})}>←</div>)
+      next = (
+        <div
+          className="backButton"
+          onClick={() => this.setState({ redirect: "/" })}
+        >
+          ←
+        </div>
+      );
     }
 
     return (
-      <div className="playWrapper">
+      <div className="vizWrapper">
         <div className="playHeader">
           <span style={{ float: "left" }}>{this.state.gameName}</span>
           {/*<span style={{ float: "right" }}>{this.state.gamePlays} Interpretations</span>*/}
         </div>
-        <div className="snipArea">{viz}</div>
+        <div className="vizArea">{viz}</div>
         {next}
       </div>
     );

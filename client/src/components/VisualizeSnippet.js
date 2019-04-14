@@ -56,14 +56,25 @@ class VisualizeSnippet extends React.Component {
           return total;
         });
         const percentHighlighted = sum / this.state.interps.length;
-        const computedHighlightColor = `rgba(249, 140, 94, ${percentHighlighted.toString()})`;
-        const computedLetterColor = `rgba(0, 0, 0, ${percentHighlighted.toString()})`;
+        const highlight = this.props.method === "highlight";
+        const opacity = this.props.method === "opacity";
         const style = {
-          backgroundColor:
-            this.props.method === "highlight" ? computedHighlightColor : "",
-          color: this.props.method === "opacity" ? computedLetterColor : ""
+          backgroundColor: highlight
+            ? `rgba(249, 140, 94, ${percentHighlighted.toString()})`
+            : "",
+          color: opacity
+            ? `rgba(0, 0, 0, ${percentHighlighted.toString()})`
+            : "",
+          fontSize: opacity
+            ? `${Math.round(percentHighlighted * 100).toString()}px`
+            : "",
+          fontWeight: opacity && percentHighlighted === 1 ? "bold" : "",
+          padding:
+            percentHighlighted > 0
+              ? `0px ${(1 - percentHighlighted) * 15}px`
+              : ""
+          //   lineHeight: opacity ? `${Math.round(percentHighlighted * 100).toString()}px` : "",
         };
-        //className={this.state.selections[this.state.pageNum - 1][index] ? 'colored' : '' }
         return (
           <span style={style} key={uuidv4()}>
             {value}

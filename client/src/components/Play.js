@@ -51,27 +51,47 @@ class Play extends React.Component {
             gameName: res.data[0].name,
             gameSnippets: res.data[0].snippets
           });
-          this.getSnippet(this.state.pageNum);
+          this.getSnippet(this.state.pageNum, true, true);
         }
       })
       .catch(err => console.log(err));
   }
 
-  getSnippet(index) {
+  getSnippet(index, firstGet, getCurAndNext) {
+    let snip = "currSnippet";
+    if (getCurAndNext === false) {
+      snip = "nextSnippet";
+      if (firstGet === false) {
+        index += 1;
+        this.setState({ currSnippet: this.state.nextSnippet });
+      }
+    }
     axios
       .get(`/api/snippets/${this.state.gameSnippets[index - 1].id}`)
       .then(res => {
         if (res.data) {
-          this.setState({
-            currSnippet: res.data[0],
-            loadingNew: false
-          });
+          this.setState(
+            {
+              [snip]: res.data[0],
+              loadingNew: false
+            },
+            () => {
+              if (getCurAndNext === true) {
+                this.getSnippet(index + 1, firstGet, false);
+              }
+            }
+          );
         }
       })
       .catch(err => console.log(err));
   }
 
   nextPage() {
+    if (this.state.pageNum + 1 < this.state.gameSnippets.length) {
+      this.getSnippet(this.state.pageNum + 1, false, false);
+    } else {
+      this.setState({ currSnippet: this.state.nextSnippet });
+    }
     if (this.state.pageNum + 1 > this.state.gameSnippets.length) {
       this.setState({
         redirect: `/game-results/${this.state.gameId}/?next=true`
@@ -85,7 +105,6 @@ class Play extends React.Component {
         pageNum: this.state.pageNum + 1,
         submittedCurrent: false
       });
-      this.getSnippet(this.state.pageNum + 1);
       this.resetContentSelect();
     }
   }
@@ -199,6 +218,7 @@ class Play extends React.Component {
     let paste = <div />;
     let snip = <div />;
     let allSnip = <div />;
+
     if (this.state.currSnippet && !this.state.loadingNew) {
       snip = (
         <SelectionHighlighter
@@ -209,7 +229,7 @@ class Play extends React.Component {
       );
     }
 
-    if (this.props.isTouch && !this.state.submittedCurrent)
+    if (this.props.isTouch && !this.state.submittedCurrent) {
       paste = (
         <div>
           <p style={{ float: "left", paddingLeft: 20 }}>Paste your selection</p>
@@ -221,6 +241,7 @@ class Play extends React.Component {
           />
         </div>
       );
+    }
 
     if (this.state.submittedCurrent) {
       // add the current interp to list of interps to visualize
@@ -237,6 +258,13 @@ class Play extends React.Component {
           method="highlight"
         />
       );
+
+      if (this.props.isTouch) {
+        // show the tooltip if touchscreen
+        window.setTimeout(() => {
+          document.getElementById("allTarget").click();
+        }, 100);
+      }
     }
 
     const gotInput = this.state.highlightedRange.length > 0;
@@ -277,7 +305,7 @@ class Play extends React.Component {
         </button>
       );
     }
-    //  console.log(this.state);
+
     return (
       <div className="playWrapper">
         <div className="playHeader">
@@ -288,7 +316,7 @@ class Play extends React.Component {
         </div>
         <div className="snipArea">
           <div className="padder" data-tip data-for="yourSelection">
-            {snip}
+            {this.props.isTouch && this.state.submittedCurrent ? <div /> : snip}
           </div>
           <ReactTooltip
             id="yourSelection"
@@ -296,11 +324,17 @@ class Play extends React.Component {
             type="dark"
             effect="solid"
             className="helpTooltip"
+            clickable={true}
             getContent={() =>
               !this.state.submittedCurrent ? null : "Your interpretation"
             }
           />
-          <div className="padder" data-tip data-for="allSelection">
+          <div
+            className="padder"
+            data-tip
+            data-for="allSelection"
+            id="allTarget"
+          >
             {allSnip}
           </div>
           <ReactTooltip
@@ -308,6 +342,8 @@ class Play extends React.Component {
             place="left"
             type="dark"
             effect="solid"
+            clickable={true}
+            event={this.props.isTouch ? "click" : ""}
             className="helpTooltip"
             getContent={() =>
               !this.state.submittedCurrent ? null : "Everyone's interpretation"
