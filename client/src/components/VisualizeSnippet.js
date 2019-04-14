@@ -70,7 +70,7 @@ class VisualizeSnippet extends React.Component {
             : "",
           fontWeight: opacity && percentHighlighted === 1 ? "bold" : "",
           padding:
-            percentHighlighted > 0
+            opacity && percentHighlighted > 0  
               ? `0px ${(1 - percentHighlighted) * 15}px`
               : ""
           //   lineHeight: opacity ? `${Math.round(percentHighlighted * 100).toString()}px` : "",
